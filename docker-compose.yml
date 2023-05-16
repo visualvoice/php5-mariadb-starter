@@ -8,6 +8,7 @@ services:
 
     volumes:
       - ../..:/workspaces:cached
+      - devcontainer-bashhistory:/commandhistory
 
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
@@ -92,4 +93,5 @@ networks:
 volumes:
   data:
     driver: local
+  devcontainer-bashhistory:
   

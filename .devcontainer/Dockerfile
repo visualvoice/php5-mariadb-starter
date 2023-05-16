@@ -15,3 +15,6 @@ RUN docker-php-ext-install mysqli pdo pdo_mysql
 # [Optional] Uncomment this line to install global node packages.
 # RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
 
+# persist bash history in devcontainer
+RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.bash_history" \
+    && echo "$SNIPPET" >> "/root/.bashrc"
