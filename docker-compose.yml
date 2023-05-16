@@ -19,7 +19,7 @@ services:
       context: ./build/
       dockerfile: Dockerfile
     expose: 
-      - 9000
+      - 9003
     extra_hosts:
       - "host.docker.internal:host-gateway" # For xdebug connection
     environment:
@@ -31,10 +31,11 @@ services:
         remote_host=host.docker.internal
         remote_log=/var/log/xdebug.log
         remote_port=9003
-        # remote_autostart=1 is activated in xdebug.ini
+        # remote_autostart=1 is activated in php.ini
     volumes:
       - ./src/:/var/www/
-      - ./build/php/xdebug.ini:/usr/local/etc/php/php.ini
+      - ./build/php/php.ini:/usr/local/etc/php/php.ini
+      - ../..:/workspaces:cached
     networks:
       - php-network
 
