@@ -1,0 +1,77 @@
+version: "1.0"
+services:
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    links: 
+     - php-5.6.40
+    ports:
+      - "80:80"
+    volumes:
+      - ./src/:/var/www/
+      - ./build/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - php-network
+  
+  php-5.6.40:
+    build:
+      context: ./build/
+      dockerfile: Dockerfile
+    expose: 
+      - 9000
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # For xdebug connection
+    environment:
+      XDEBUG_MODE: develop,debug
+      XDEBUG_CONFIG:
+        default_enable=1
+        remote_enable=1
+        idekey=VSCODE
+        remote_host=host.docker.internal
+        remote_log=/var/log/xdebug.log
+        remote_port=9003
+        # remote_autostart=1 is activated in xdebug.ini
+    volumes:
+      - ./src/:/var/www/
+      - ./build/php/xdebug.ini:/usr/local/etc/php/php.ini
+    networks:
+      - php-network
+
+  db:
+    image: mariadb # v10.5.8
+    restart: unless-stopped
+    environment:
+      - MARIADB_ROOT_PASSWORD=root
+    volumes:
+      - ./data/db:/var/lib/mysql
+    networks:
+      - php-network
+
+  dbadmin:
+    image: phpmyadmin/phpmyadmin
+    platform: linux/amd64
+    restart: unless-stopped
+    environment:
+      PMA_HOST: db
+      PMA_USER: root # Dev only
+      PMA_PASSWORD: root # Dev only
+      # allow large uploads 
+      UPLOAD_MAX_FILESIZE: 64M
+      POST_MAX_SIZE: 64M
+      MAX_EXECUTION_TIME: 300
+      MAX_INPUT_TIME: 300
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      - db
+    networks:
+      - php-network
+
+networks:
+  php-network:
+    driver: bridge
+
+volumes:
+  data:
+    driver: local
+  
