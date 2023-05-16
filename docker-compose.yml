@@ -1,6 +1,24 @@
 version: "1.0"
 services:
 
+  app:
+    build:
+      context: ./.devcontainer/
+      dockerfile: Dockerfile
+
+    volumes:
+      - ../..:/workspaces:cached
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+
+    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
+    network_mode: service:db
+
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally. 
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+
   nginx:
     image: nginx:alpine
     restart: unless-stopped
@@ -16,7 +34,7 @@ services:
   
   php-5.6.40:
     build:
-      context: ./build/
+      context: ./build
       dockerfile: Dockerfile
     expose: 
       - 9003
@@ -35,7 +53,6 @@ services:
     volumes:
       - ./src/:/var/www/
       - ./build/php/php.ini:/usr/local/etc/php/php.ini
-      - ../..:/workspaces:cached
     networks:
       - php-network
 
